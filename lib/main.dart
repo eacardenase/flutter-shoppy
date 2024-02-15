@@ -1,6 +1,8 @@
-import 'package:shoppy/screens/groceries_screen.dart';
-
 import 'package:flutter/material.dart';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:shoppy/screens/groceries_screen.dart';
 
 final theme = ThemeData.dark().copyWith(
   colorScheme: ColorScheme.fromSeed(
@@ -11,7 +13,11 @@ final theme = ThemeData.dark().copyWith(
 );
 
 void main() {
-  runApp(const App());
+  runApp(
+    const ProviderScope(
+      child: App(),
+    ),
+  );
 }
 
 class App extends StatelessWidget {
