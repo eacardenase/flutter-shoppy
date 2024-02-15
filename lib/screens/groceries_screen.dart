@@ -14,7 +14,7 @@ class GroceriesScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.all(10),
         child: GroceriesList(groceries: groceries),
       ),
     );

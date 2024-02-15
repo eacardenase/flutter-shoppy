@@ -12,21 +12,14 @@ class GroceryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: ListTile(
-            title: Text(grocery.name),
-            leading: Container(
-              width: 20,
-              height: 20,
-              color: grocery.category.color,
-            ),
-          ),
-        ),
-        Text('${grocery.quantity}')
-      ],
+    return ListTile(
+      title: Text(grocery.name),
+      leading: Container(
+        width: 25,
+        height: 25,
+        color: grocery.category.color,
+      ),
+      trailing: Text('${grocery.quantity}'),
     );
   }
 }
