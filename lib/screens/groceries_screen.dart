@@ -23,7 +23,7 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
 
   void _loadGroceries() async {
     final uri = Uri.https(
-      'abc.firebaseio.com',
+      'shopping-list-9f8d7-default-rtdb.firebaseio.com',
       'shopping-list.json',
     );
 
@@ -79,6 +79,28 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
     });
   }
 
+  void _removeGrocery(Grocery grocery) async {
+    final uri = Uri.https(
+      'shopping-list-9f8d7-default-rtdb.firebaseio.com',
+      'shopping-list/${grocery.id}.json',
+    );
+
+    final response = await http.delete(uri);
+
+    if (response.statusCode >= 400) {
+      setState(() {
+        _errorMessage = 'Failed to delete the grocery. Please try again later.';
+        _isLoading = false;
+      });
+
+      return;
+    }
+
+    setState(() {
+      _groceries.remove(grocery);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -104,7 +126,10 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
     }
 
     if (_groceries.isNotEmpty) {
-      mainContent = GroceriesList(groceries: _groceries);
+      mainContent = GroceriesList(
+        groceries: _groceries,
+        onRemoveGrocery: _removeGrocery,
+      );
     }
 
     if (_errorMessage != null) {

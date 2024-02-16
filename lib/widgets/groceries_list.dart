@@ -7,9 +7,11 @@ class GroceriesList extends StatelessWidget {
   const GroceriesList({
     super.key,
     required this.groceries,
+    required this.onRemoveGrocery,
   });
 
   final List<Grocery> groceries;
+  final void Function(Grocery) onRemoveGrocery;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +20,10 @@ class GroceriesList extends StatelessWidget {
       itemBuilder: (context, index) {
         final grocery = groceries[index];
 
-        return GroceryItem(grocery: grocery);
+        return GroceryItem(
+          grocery: grocery,
+          onRemoveGrocery: onRemoveGrocery,
+        );
       },
     );
   }

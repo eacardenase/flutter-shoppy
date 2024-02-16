@@ -3,22 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:shoppy/models/grocery.dart';
-import 'package:shoppy/providers/groceries_provider.dart';
 
 class GroceryItem extends ConsumerWidget {
   const GroceryItem({
     super.key,
     required this.grocery,
+    required this.onRemoveGrocery,
   });
 
   final Grocery grocery;
+  final void Function(Grocery) onRemoveGrocery;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Dismissible(
       key: ValueKey(grocery),
       onDismissed: (direction) {
-        ref.read(groceriesProvider.notifier).removeGrocery(grocery);
+        onRemoveGrocery(grocery);
       },
       child: ListTile(
         title: Text(grocery.name),
