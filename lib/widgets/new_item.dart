@@ -1,20 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:shoppy/data/categories.dart';
 import 'package:shoppy/models/category.dart';
-import 'package:shoppy/models/grocery.dart';
-import 'package:shoppy/providers/groceries_provider.dart';
 
-class NewItem extends ConsumerStatefulWidget {
+class NewItem extends StatefulWidget {
   const NewItem({super.key});
 
   @override
-  ConsumerState<NewItem> createState() => _NewItem();
+  State<NewItem> createState() => _NewItem();
 }
 
-class _NewItem extends ConsumerState<NewItem> {
+class _NewItem extends State<NewItem> {
   final _formKey = GlobalKey<FormState>();
   var _enteredName = '';
   var _enteredQuantity = 1;
@@ -30,13 +30,22 @@ class _NewItem extends ConsumerState<NewItem> {
 
     formState.save();
 
-    final grocery = Grocery(
-        id: DateTime.now().toString(),
-        name: _enteredName,
-        quantity: _enteredQuantity,
-        category: _selectedCategory);
+    final uri = Uri.https(
+      'shopping-list-9f8d7-default-rtdb.firebaseio.com',
+      'shopping-list.json',
+    );
 
-    ref.read(groceriesProvider.notifier).addGrocery(grocery);
+    http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'name': _enteredName,
+        'quantity': _enteredQuantity,
+        'category': _selectedCategory.title,
+      }),
+    );
 
     _resetForm();
 
