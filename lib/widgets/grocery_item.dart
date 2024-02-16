@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:shoppy/models/grocery.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class GroceryItem extends StatelessWidget {
+import 'package:shoppy/models/grocery.dart';
+import 'package:shoppy/providers/groceries_provider.dart';
+
+class GroceryItem extends ConsumerWidget {
   const GroceryItem({
     super.key,
     required this.grocery,
@@ -11,15 +14,21 @@ class GroceryItem extends StatelessWidget {
   final Grocery grocery;
 
   @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(grocery.name),
-      leading: Container(
-        width: 25,
-        height: 25,
-        color: grocery.category.color,
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Dismissible(
+      key: ValueKey(grocery),
+      onDismissed: (direction) {
+        ref.read(groceriesProvider.notifier).removeGrocery(grocery);
+      },
+      child: ListTile(
+        title: Text(grocery.name),
+        leading: Container(
+          width: 25,
+          height: 25,
+          color: grocery.category.color,
+        ),
+        trailing: Text('${grocery.quantity}'),
       ),
-      trailing: Text('${grocery.quantity}'),
     );
   }
 }

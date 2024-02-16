@@ -1,16 +1,21 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:shoppy/data/dummy_items.dart';
 import 'package:shoppy/models/grocery.dart';
 
 class GroceriesNotifier extends StateNotifier<List<Grocery>> {
-  GroceriesNotifier() : super([...groceries]);
+  GroceriesNotifier() : super([]);
 
   void addGrocery(Grocery grocery) {
     state = [
       ...state,
       grocery,
     ];
+  }
+
+  void removeGrocery(Grocery grocery) {
+    state = state
+        .where((currentGrocery) => currentGrocery.id != grocery.id)
+        .toList();
   }
 }
 

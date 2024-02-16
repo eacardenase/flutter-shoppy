@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:shoppy/data/categories.dart';
 import 'package:shoppy/models/category.dart';
+import 'package:shoppy/models/grocery.dart';
+import 'package:shoppy/providers/groceries_provider.dart';
 
-class NewItem extends StatefulWidget {
+class NewItem extends ConsumerStatefulWidget {
   const NewItem({super.key});
 
   @override
-  State<NewItem> createState() => _NewItem();
+  ConsumerState<NewItem> createState() => _NewItem();
 }
 
-class _NewItem extends State<NewItem> {
+class _NewItem extends ConsumerState<NewItem> {
   final _formKey = GlobalKey<FormState>();
   var _enteredName = '';
   var _enteredQuantity = 1;
@@ -26,9 +30,17 @@ class _NewItem extends State<NewItem> {
 
     formState.save();
 
-    print(_enteredName);
-    print(_enteredQuantity);
-    print(_selectedCategory.title);
+    final grocery = Grocery(
+        id: DateTime.now().toString(),
+        name: _enteredName,
+        quantity: _enteredQuantity,
+        category: _selectedCategory);
+
+    ref.read(groceriesProvider.notifier).addGrocery(grocery);
+
+    _resetForm();
+
+    Navigator.of(context).pop();
   }
 
   void _resetForm() {
