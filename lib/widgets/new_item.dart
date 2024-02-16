@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:shoppy/data/categories.dart';
 import 'package:shoppy/models/category.dart';
+import 'package:shoppy/models/grocery.dart';
 
 class NewItem extends StatefulWidget {
   const NewItem({super.key});
@@ -35,7 +36,7 @@ class _NewItem extends State<NewItem> {
       'shopping-list.json',
     );
 
-    await http.post(
+    final response = await http.post(
       uri,
       headers: {
         'Content-Type': 'application/json',
@@ -49,11 +50,19 @@ class _NewItem extends State<NewItem> {
 
     _resetForm();
 
+    final Map<String, dynamic> responseData = jsonDecode(response.body);
+    final grocery = Grocery(
+      id: responseData['name'],
+      name: _enteredName,
+      quantity: _enteredQuantity,
+      category: _selectedCategory,
+    );
+
     if (!context.mounted) {
       return;
     }
 
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(grocery);
   }
 
   void _resetForm() {

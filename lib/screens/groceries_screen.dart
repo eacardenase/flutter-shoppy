@@ -17,7 +17,7 @@ class GroceriesScreen extends StatefulWidget {
 }
 
 class _GroceriesScreenState extends State<GroceriesScreen> {
-  List<Grocery> groceries = [];
+  List<Grocery> _groceries = [];
 
   void _loadGroceries() async {
     final uri = Uri.https(
@@ -46,18 +46,24 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
     }
 
     setState(() {
-      groceries = loadedGroceries;
+      _groceries = loadedGroceries;
     });
   }
 
   void _addGrocery() async {
-    await Navigator.of(context).push<Grocery>(
+    final newGrocery = await Navigator.of(context).push<Grocery>(
       MaterialPageRoute(
         builder: (context) => const NewItemScreen(),
       ),
     );
 
-    _loadGroceries();
+    if (newGrocery == null) {
+      return;
+    }
+
+    setState(() {
+      _groceries.add(newGrocery);
+    });
   }
 
   @override
@@ -78,8 +84,8 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
       ),
     );
 
-    if (groceries.isNotEmpty) {
-      mainContent = GroceriesList(groceries: groceries);
+    if (_groceries.isNotEmpty) {
+      mainContent = GroceriesList(groceries: _groceries);
     }
 
     return Scaffold(
