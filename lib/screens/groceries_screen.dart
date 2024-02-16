@@ -17,66 +17,45 @@ class GroceriesScreen extends StatefulWidget {
 }
 
 class _GroceriesScreenState extends State<GroceriesScreen> {
-  List<Grocery> _groceries = [];
-  var _isLoading = true;
-  String? _errorMessage;
+  final List<Grocery> _groceries = [];
+  late Future<List<Grocery>> _loadedGroceries;
 
-  void _loadGroceries() async {
+  Future<List<Grocery>> _loadGroceries() async {
     final uri = Uri.https(
       'shopping-list-9f8d7-default-rtdb.firebaseio.com',
       'shopping-list.json',
     );
 
-    try {
-      final response = await http.get(uri);
+    final response = await http.get(uri);
 
-      final Map<String, dynamic>? responseData = jsonDecode(response.body);
-      final List<Grocery> loadedGroceries = [];
+    final Map<String, dynamic>? responseData = jsonDecode(response.body);
+    final List<Grocery> loadedGroceries = [];
 
-      if (response.statusCode >= 400) {
-        setState(() {
-          _errorMessage = 'Failed to fetch data. Please try again later.';
-          _isLoading = false;
-        });
-
-        return;
-      }
-
-      if (responseData == null) {
-        setState(() {
-          _isLoading = false;
-        });
-
-        return;
-      }
-
-      for (final item in responseData.entries) {
-        final category = categories.entries
-            .firstWhere((currentCategory) =>
-                currentCategory.value.title == item.value['category'])
-            .value;
-
-        final grocery = Grocery(
-          id: item.key,
-          name: item.value['name'],
-          quantity: item.value['quantity'],
-          category: category,
-        );
-
-        loadedGroceries.add(grocery);
-      }
-
-      setState(() {
-        _groceries = loadedGroceries;
-        _isLoading = false;
-      });
-    } catch (error) {
-      print(error);
-
-      setState(() {
-        _errorMessage = 'Something went wrong! Please try again later.';
-      });
+    if (response.statusCode >= 400) {
+      throw Exception('Failed to fetch grocery items. Please try again later.');
     }
+
+    if (responseData == null) {
+      return [];
+    }
+
+    for (final item in responseData.entries) {
+      final category = categories.entries
+          .firstWhere((currentCategory) =>
+              currentCategory.value.title == item.value['category'])
+          .value;
+
+      final grocery = Grocery(
+        id: item.key,
+        name: item.value['name'],
+        quantity: item.value['quantity'],
+        category: category,
+      );
+
+      loadedGroceries.add(grocery);
+    }
+
+    return loadedGroceries;
   }
 
   void _addGrocery() async {
@@ -120,47 +99,11 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
   void initState() {
     super.initState();
 
-    _loadGroceries();
+    _loadedGroceries = _loadGroceries();
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget mainContent = const Center(
-      child: Text(
-        'No groceries found. Add a new one!',
-        style: TextStyle(
-          fontSize: 16,
-        ),
-      ),
-    );
-
-    if (_isLoading) {
-      mainContent = const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
-    if (_groceries.isNotEmpty) {
-      mainContent = GroceriesList(
-        groceries: _groceries,
-        onRemoveGrocery: _removeGrocery,
-      );
-    }
-
-    if (_errorMessage != null) {
-      mainContent = Center(
-        child: Text(
-          _errorMessage!,
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          softWrap: true,
-          style: const TextStyle(
-            fontSize: 16,
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Groceries'),
@@ -176,7 +119,46 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),
-        child: mainContent,
+        child: FutureBuilder(
+          future: _loadedGroceries,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+
+            if (snapshot.hasError || snapshot.data == null) {
+              return Center(
+                child: Text(
+                  snapshot.error.toString(),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  softWrap: true,
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+              );
+            }
+
+            if (snapshot.data!.isEmpty) {
+              return const Center(
+                child: Text(
+                  'No groceries found. Add a new one!',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+              );
+            }
+
+            return GroceriesList(
+              groceries: snapshot.data!,
+              onRemoveGrocery: _removeGrocery,
+            );
+          },
+        ),
       ),
     );
   }
