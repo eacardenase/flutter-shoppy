@@ -27,47 +27,56 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
       'shopping-list.json',
     );
 
-    final response = await http.get(uri);
-    final Map<String, dynamic>? responseData = jsonDecode(response.body);
-    final List<Grocery> loadedGroceries = [];
+    try {
+      final response = await http.get(uri);
 
-    if (response.statusCode >= 400) {
+      final Map<String, dynamic>? responseData = jsonDecode(response.body);
+      final List<Grocery> loadedGroceries = [];
+
+      if (response.statusCode >= 400) {
+        setState(() {
+          _errorMessage = 'Failed to fetch data. Please try again later.';
+          _isLoading = false;
+        });
+
+        return;
+      }
+
+      if (responseData == null) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        return;
+      }
+
+      for (final item in responseData.entries) {
+        final category = categories.entries
+            .firstWhere((currentCategory) =>
+                currentCategory.value.title == item.value['category'])
+            .value;
+
+        final grocery = Grocery(
+          id: item.key,
+          name: item.value['name'],
+          quantity: item.value['quantity'],
+          category: category,
+        );
+
+        loadedGroceries.add(grocery);
+      }
+
       setState(() {
-        _errorMessage = 'Failed to fetch data. Please try again later.';
+        _groceries = loadedGroceries;
         _isLoading = false;
       });
+    } catch (error) {
+      print(error);
 
-      return;
-    }
-
-    if (responseData == null) {
       setState(() {
-        _isLoading = false;
+        _errorMessage = 'Something went wrong! Please try again later.';
       });
-
-      return;
     }
-
-    for (final item in responseData.entries) {
-      final category = categories.entries
-          .firstWhere((currentCategory) =>
-              currentCategory.value.title == item.value['category'])
-          .value;
-
-      final grocery = Grocery(
-        id: item.key,
-        name: item.value['name'],
-        quantity: item.value['quantity'],
-        category: category,
-      );
-
-      loadedGroceries.add(grocery);
-    }
-
-    setState(() {
-      _groceries = loadedGroceries;
-      _isLoading = false;
-    });
   }
 
   void _addGrocery() async {
