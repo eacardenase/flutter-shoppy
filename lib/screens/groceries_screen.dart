@@ -17,6 +17,18 @@ class _GroceriesScreenState extends ConsumerState<GroceriesScreen> {
   @override
   Widget build(BuildContext context) {
     final groceries = ref.watch(groceriesProvider);
+    Widget mainContent = const Center(
+      child: Text(
+        'No groceries found. Add a new one!',
+        style: TextStyle(
+          fontSize: 16,
+        ),
+      ),
+    );
+
+    if (groceries.isNotEmpty) {
+      mainContent = GroceriesList(groceries: groceries);
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -39,7 +51,7 @@ class _GroceriesScreenState extends ConsumerState<GroceriesScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),
-        child: GroceriesList(groceries: groceries),
+        child: mainContent,
       ),
     );
   }
