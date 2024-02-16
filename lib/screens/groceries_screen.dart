@@ -18,6 +18,7 @@ class GroceriesScreen extends StatefulWidget {
 
 class _GroceriesScreenState extends State<GroceriesScreen> {
   List<Grocery> _groceries = [];
+  var _isLoading = true;
 
   void _loadGroceries() async {
     final uri = Uri.https(
@@ -47,6 +48,7 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
 
     setState(() {
       _groceries = loadedGroceries;
+      _isLoading = false;
     });
   }
 
@@ -83,6 +85,12 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
         ),
       ),
     );
+
+    if (_isLoading) {
+      mainContent = const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
 
     if (_groceries.isNotEmpty) {
       mainContent = GroceriesList(groceries: _groceries);

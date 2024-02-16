@@ -16,6 +16,7 @@ class NewItem extends StatefulWidget {
 }
 
 class _NewItem extends State<NewItem> {
+  var _isSending = false;
   final _formKey = GlobalKey<FormState>();
   var _enteredName = '';
   var _enteredQuantity = 1;
@@ -28,6 +29,10 @@ class _NewItem extends State<NewItem> {
     if (!formIsValid) {
       return;
     }
+
+    setState(() {
+      _isSending = true;
+    });
 
     formState.save();
 
@@ -47,6 +52,10 @@ class _NewItem extends State<NewItem> {
         'category': _selectedCategory.title,
       }),
     );
+
+    setState(() {
+      _isSending = false;
+    });
 
     _resetForm();
 
@@ -155,13 +164,19 @@ class _NewItem extends State<NewItem> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: _resetForm,
+                  onPressed: _isSending ? null : _resetForm,
                   child: const Text('Reset'),
                 ),
                 const SizedBox(width: 20),
                 ElevatedButton(
-                  onPressed: _saveForm,
-                  child: const Text('Save'),
+                  onPressed: _isSending ? null : _saveForm,
+                  child: _isSending
+                      ? const SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(),
+                        )
+                      : const Text('Save'),
                 )
               ],
             )
