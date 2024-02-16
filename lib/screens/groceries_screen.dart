@@ -19,14 +19,25 @@ class GroceriesScreen extends StatefulWidget {
 class _GroceriesScreenState extends State<GroceriesScreen> {
   List<Grocery> _groceries = [];
   var _isLoading = true;
+  String? _errorMessage;
 
   void _loadGroceries() async {
     final uri = Uri.https(
-      'shopping-list-9f8d7-default-rtdb.firebaseio.com',
+      'abc.firebaseio.com',
       'shopping-list.json',
     );
 
     final response = await http.get(uri);
+
+    if (response.statusCode >= 400) {
+      setState(() {
+        _errorMessage = 'Failed to fetch data. Please try again later.';
+        _isLoading = false;
+      });
+
+      return;
+    }
+
     final Map<String, dynamic> listData = jsonDecode(response.body);
     final List<Grocery> loadedGroceries = [];
 
@@ -94,6 +105,20 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
 
     if (_groceries.isNotEmpty) {
       mainContent = GroceriesList(groceries: _groceries);
+    }
+
+    if (_errorMessage != null) {
+      mainContent = Center(
+        child: Text(
+          _errorMessage!,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          softWrap: true,
+          style: const TextStyle(
+            fontSize: 16,
+          ),
+        ),
+      );
     }
 
     return Scaffold(
