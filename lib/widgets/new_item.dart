@@ -9,10 +9,25 @@ class NewItem extends StatefulWidget {
 }
 
 class _NewItem extends State<NewItem> {
+  final _formKey = GlobalKey<FormState>();
+
+  void _saveForm() {
+    final state = _formKey.currentState!;
+
+    final formIsValid = state.validate();
+
+    print(formIsValid);
+  }
+
+  void _resetForm() {
+    _formKey.currentState!.reset();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Form(
+        key: _formKey,
         child: Column(
           children: [
             TextFormField(
@@ -21,7 +36,14 @@ class _NewItem extends State<NewItem> {
                 label: Text('Name'),
               ),
               validator: (value) {
-                return 'Demo...';
+                if (value == null ||
+                    value.isEmpty ||
+                    value.trim().length <= 1 ||
+                    value.trim().length > 50) {
+                  return 'Must be between 1 and 50 characters.';
+                }
+
+                return null;
               },
             ),
             Row(
@@ -32,7 +54,18 @@ class _NewItem extends State<NewItem> {
                     decoration: const InputDecoration(
                       label: Text('Quantity'),
                     ),
+                    keyboardType: TextInputType.number,
                     initialValue: '1',
+                    validator: (value) {
+                      if (value == null ||
+                          value.isEmpty ||
+                          int.tryParse(value) == null ||
+                          int.parse(value) <= 0) {
+                        return 'Must be a valid, positive number.';
+                      }
+
+                      return null;
+                    },
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -65,12 +98,12 @@ class _NewItem extends State<NewItem> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () {},
+                  onPressed: _resetForm,
                   child: const Text('Reset'),
                 ),
                 const SizedBox(width: 20),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _saveForm,
                   child: const Text('Save'),
                 )
               ],
