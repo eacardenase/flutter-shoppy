@@ -20,7 +20,7 @@ class _NewItem extends State<NewItem> {
   var _enteredQuantity = 1;
   var _selectedCategory = categories[Categories.vegetables]!;
 
-  void _saveForm() {
+  void _saveForm() async {
     final formState = _formKey.currentState!;
     final formIsValid = formState.validate();
 
@@ -35,7 +35,7 @@ class _NewItem extends State<NewItem> {
       'shopping-list.json',
     );
 
-    http.post(
+    await http.post(
       uri,
       headers: {
         'Content-Type': 'application/json',
@@ -48,6 +48,10 @@ class _NewItem extends State<NewItem> {
     );
 
     _resetForm();
+
+    if (!context.mounted) {
+      return;
+    }
 
     Navigator.of(context).pop();
   }
