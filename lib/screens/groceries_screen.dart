@@ -28,6 +28,8 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
     );
 
     final response = await http.get(uri);
+    final Map<String, dynamic>? responseData = jsonDecode(response.body);
+    final List<Grocery> loadedGroceries = [];
 
     if (response.statusCode >= 400) {
       setState(() {
@@ -38,10 +40,15 @@ class _GroceriesScreenState extends State<GroceriesScreen> {
       return;
     }
 
-    final Map<String, dynamic> listData = jsonDecode(response.body);
-    final List<Grocery> loadedGroceries = [];
+    if (responseData == null) {
+      setState(() {
+        _isLoading = false;
+      });
 
-    for (final item in listData.entries) {
+      return;
+    }
+
+    for (final item in responseData.entries) {
       final category = categories.entries
           .firstWhere((currentCategory) =>
               currentCategory.value.title == item.value['category'])
