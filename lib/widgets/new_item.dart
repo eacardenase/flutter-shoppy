@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:shoppy/data/categories.dart';
+import 'package:shoppy/models/category.dart';
 
 class NewItem extends StatefulWidget {
   const NewItem({super.key});
@@ -10,13 +12,23 @@ class NewItem extends StatefulWidget {
 
 class _NewItem extends State<NewItem> {
   final _formKey = GlobalKey<FormState>();
+  var _enteredName = '';
+  var _enteredQuantity = 1;
+  var _selectedCategory = categories[Categories.vegetables]!;
 
   void _saveForm() {
-    final state = _formKey.currentState!;
+    final formState = _formKey.currentState!;
+    final formIsValid = formState.validate();
 
-    final formIsValid = state.validate();
+    if (!formIsValid) {
+      return;
+    }
 
-    print(formIsValid);
+    formState.save();
+
+    print(_enteredName);
+    print(_enteredQuantity);
+    print(_selectedCategory.title);
   }
 
   void _resetForm() {
@@ -45,6 +57,9 @@ class _NewItem extends State<NewItem> {
 
                 return null;
               },
+              onSaved: (newValue) {
+                _enteredName = newValue!;
+              },
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -55,7 +70,7 @@ class _NewItem extends State<NewItem> {
                       label: Text('Quantity'),
                     ),
                     keyboardType: TextInputType.number,
-                    initialValue: '1',
+                    initialValue: _enteredQuantity.toString(),
                     validator: (value) {
                       if (value == null ||
                           value.isEmpty ||
@@ -66,11 +81,15 @@ class _NewItem extends State<NewItem> {
 
                       return null;
                     },
+                    onSaved: (newValue) {
+                      _enteredQuantity = int.parse(newValue!);
+                    },
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: DropdownButtonFormField(
+                    value: _selectedCategory,
                     items: [
                       for (final category in categories.entries)
                         DropdownMenuItem(
@@ -88,7 +107,11 @@ class _NewItem extends State<NewItem> {
                           ),
                         )
                     ],
-                    onChanged: (value) {},
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedCategory = value!;
+                      });
+                    },
                   ),
                 )
               ],
